@@ -1,3 +1,133 @@
+# Swagger Maven Plugin With ProtoBuf Support
+
+> 该版本改自官方`3.1.9-SNAPSHOT`版本
+
+## 示例配置
+
+```xml
+<plugins>
+    <plugin>
+        <!-- Maven的swagger插件 -->
+        <groupId>com.github.kongchen</groupId>
+        <artifactId>swagger-maven-plugin</artifactId>
+        <version>3.1.9-PB</version>
+        <!--<version>3.1.9-SNAPSHOT</version>-->
+        <!-- 增强 -->
+        <extensions>true</extensions>
+        <configuration>
+            <apiSources>
+                <apiSource>
+                    <!-- 是否是SpringMVC项目，如果不是请设置为false -->
+                    <springmvc>true</springmvc>
+                    <!-- 要扫描的接口包路径，可以为多个，使用逗号分隔 -->
+                    <locations>
+                        <location>xxx.controller</location>
+                    </locations>
+                    <!-- API协议，例如http/https/ws等 -->
+                    <schemes>http</schemes>
+                    <!-- Protobuf 支持 -->
+                    <modelConverters>
+                        me.vica.swagger.docgen.ProtoBufferedModelResolver
+                    </modelConverters>
+                    <!-- API的MOCK地址 -->
+                    <host>127.0.0.1</host>
+                    <!-- API的MOCK基地址（即ContextPath） -->
+                    <basePath>/</basePath>
+                    <!-- API文档的描述信息 -->
+                    <info>
+                        <!-- 文档标题  -->
+                        <title>xx系统接口文档</title>
+                        <!-- 文档版本 -->
+                        <version>v1</version>
+                        <!-- 文档描述 -->
+                        <description>接口描述</description>
+                        <!-- 团队地址（或项目地址） -->
+                        <termsOfService>
+                            https://github.com/vicasong/swagger-maven-plugin-with-proto-support
+                        </termsOfService>
+                        <!-- 联系方式 -->
+                        <contact>
+                            <email>xxx@xxx.com</email>
+                            <name>xxx</name>
+                            <url>http://xxx.xxx/</url>
+                        </contact>
+                        <license>
+                            <url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
+                            <name>Apache 2.0</name>
+                        </license>
+                    </info>
+                    <!-- API定义生成的目录（相对目录是相对于当前项目的根目录） -->
+                    <swaggerDirectory>generated/swagger-ui</swaggerDirectory>
+                    <!-- API解析器（读取扫描到的类并抽出需要在文档展示的API） -->
+                    <swaggerApiReader>
+                        com.github.kongchen.swagger.docgen.reader.SpringMvcApiReader
+                    </swaggerApiReader>
+                </apiSource>
+            </apiSources>
+        </configuration>
+        <executions>
+            <execution>
+                <phase>compile</phase>
+                <goals>
+                    <goal>generate</goal>
+                </goals>
+            </execution>
+        </executions>
+    </plugin>
+    <plugin>
+        <!-- 清理插件（因为swagger插件设置的生成目录不在clean的默认目录下，需要在clean时包含这个目录，当然你也可以将生成目录设置到target目录下就不需要此插件了） -->
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-clean-plugin</artifactId>
+        <version>3.1.0</version>
+        <configuration>
+            <filesets>
+                <fileset>
+                    <!-- 清理目录 -->
+                    <directory>generated</directory>
+                    <includes>
+                        <include>**/*</include>
+                    </includes>
+                    <followSymlinks>false</followSymlinks>
+                </fileset>
+            </filesets>
+        </configuration>
+    </plugin>
+</plugin>
+```
+
+对于`SpringMVC`项目，需要满足以下要求的接口才会被扫描：
+
+- 使用`@RestController` 标记的控制器
+- 使用`@RequestMapping`定义的接口且有`@ApiOperation`对其进行描述
+- `@RequestMapping`定义了请求方法`method`（本代码已经对其做出修改，不需要明确定义，拥有默认值）
+
+对于非`SpringMVC`项目则需要在类上标注`@Api`注解  
+
+
+对于`SpringMVC`项目的示例（存在`@RequestMapping`注解描述接口，`@ApiOperation`注解可以只定义一些其他的描述信息）：  
+
+```java
+@RestController
+@RequestMapping("api")
+public class GitController {
+
+    @ApiOperation(value = "文件上传", tags = "标准", response = String.class, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @RequestMapping(value = "upload-file", method = RequestMethod.POST)
+    public Mono<String> upload(@RequestPart("file") @ApiParam(value = "API定义的JSON文件", required = true)
+                                           FilePart file,
+                              @RequestPart("name") @ApiParam(value = "所适用的系统名称", required = true)
+                                      String name) {
+        
+    }
+}
+```
+
+
+使用`mvn clean compile`命令或其他包含`compile`的周期命令则会在指定的目录生成一个`swagger.json`的接口定义文件，将该文件通过本文档系统页面上传（同时填写相关信息）即可
+
+> 以下为官方文档
+
+
 # Swagger Maven Plugin
 [![Build Status](https://travis-ci.org/kongchen/swagger-maven-plugin.png)](https://travis-ci.org/kongchen/swagger-maven-plugin)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.kongchen/swagger-maven-plugin/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.kongchen/swagger-maven-plugin)
