@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+
+option java_package = "me.vicasong.swagger.docgen.protocol";
+option java_outer_classname = "TestProtos";
+
+// 基本信息
+message BaseInfoMsg {
+    int32                   id      = 1; // ID
+    string                  name    = 2; // 姓名
+    int64                   time    = 3; // 时间戳
+    enum Gender { // 性别
+          MALE      = 0; // 男
+          FEMALE    = 1; // 女
+    }
+    Gender                  gender  = 4; // 性别
+    string                  address = 5; // 地址
+}
+
+// 变更信息
+message StudentMsg {
+    BaseInfoMsg             info    = 1; // 基础信息
+    int32                   class   = 2; // 班级
+    repeated int64          scores  = 3; // 累计考试分数列表
+    map<string, string>     events  = 4; // 记过
+}

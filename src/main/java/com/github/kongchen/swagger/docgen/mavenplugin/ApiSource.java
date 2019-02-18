@@ -297,7 +297,7 @@ public class ApiSource {
     }
 
     public String getOutputFormats() {
-        return outputFormats;
+        return outputFormats == null ? "json" : outputFormats;
     }
 
     public void setOutputFormats(String outputFormats) {

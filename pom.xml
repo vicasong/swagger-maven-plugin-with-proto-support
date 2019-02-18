@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.github.kongchen</groupId>
     <artifactId>swagger-maven-plugin</artifactId>
-    <version>3.1.9-SNAPSHOT</version>
+    <version>3.1.9-PB</version>
     <packaging>maven-plugin</packaging>
     <name>Swagger Maven Plugin</name>
     <description>
@@ -17,42 +17,9 @@
         </license>
     </licenses>
 
-    <scm>
-        <connection>scm:git:git@github.com:kongchen/swagger-maven-plugin.git</connection>
-        <url>scm:git:git@github.com:kongchen/swagger-maven-plugin.git</url>
-        <developerConnection>scm:git:git@github.com:kongchen/swagger-maven-plugin.git</developerConnection>
-        <tag>HEAD</tag>
-    </scm>
-
-    <developers>
-        <developer>
-            <id>kongchen</id>
-            <name>Kong Chen</name>
-            <timezone>+8</timezone>
-        </developer>
-        <developer>
-            <id>tedleman</id>
-            <name>Troy Edleman</name>
-            <timezone>-5</timezone>
-        </developer>
-        <developer>
-            <id>who</id>
-            <name>Andrew B</name>
-        </developer>
-    </developers>
-    <contributors>
-        <contributor>
-            <email>stripodi@adobe.com</email>
-            <name>Simone Tripodi</name>
-            <organization>Adobe Research (Schweiz) AG</organization>
-            <organizationUrl>http://www.adobe.com/</organizationUrl>
-            <timezone>+1</timezone>
-        </contributor>
-    </contributors>
-
     <properties>
         <!-- Settings -->
-        <java.version>1.6</java.version>
+        <java.version>1.8</java.version>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <maven.javadoc.failOnError>false</maven.javadoc.failOnError>
@@ -61,7 +28,8 @@
         <sonatypeOssDistMgmtSnapshotsUrl>https://oss.sonatype.org/content/repositories/snapshots/</sonatypeOssDistMgmtSnapshotsUrl>
 
         <!-- Dependency versions -->
-        <maven.version>2.2.1</maven.version>
+        <maven.version>3.6.0</maven.version>
+        <maven-project.version>2.2.1</maven-project.version>
         <swagger.version>1.5.21</swagger.version>
         <jackson.version>2.8.9</jackson.version>
         <log4j.version>1.2.16</log4j.version>
@@ -72,7 +40,8 @@
         <commons-lang3.version>3.5</commons-lang3.version>
         <version.jersey-server>1.13</version.jersey-server>
         <version.javax.ws.rs-api>2.0.1</version.javax.ws.rs-api>
-        <version.maven-plugin-annotations>3.3</version.maven-plugin-annotations>
+        <version.maven-plugin-annotations>3.4</version.maven-plugin-annotations>
+
         <!-- Test dependency versions -->
         <maven-testing-harness.version>1.3</maven-testing-harness.version>
         <testng.version>6.8.8</testng.version>
@@ -83,9 +52,9 @@
 
         <!-- Plugin versions -->
         <version.maven-release-plugin>2.5.3</version.maven-release-plugin>
-        <version.plexus-component-metadata>1.5.5</version.plexus-component-metadata>
+        <version.plexus-component-metadata>1.7.1</version.plexus-component-metadata>
         <version.maven-compiler-plugin>2.3.2</version.maven-compiler-plugin>
-        <version.maven-plugin-plugin>3.3</version.maven-plugin-plugin>
+        <version.maven-plugin-plugin>3.4</version.maven-plugin-plugin>
         <version.animal-sniffer-plugin>1.14</version.animal-sniffer-plugin>
         <version.maven-source-plugin>2.1.2</version.maven-source-plugin>
         <version.maven-javadoc-plugin>2.7</version.maven-javadoc-plugin>
@@ -109,7 +78,7 @@
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-project</artifactId>
-            <version>${maven.version}</version>
+            <version>${maven-project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven</groupId>
@@ -215,6 +184,11 @@
             <artifactId>jackson-module-jaxb-annotations</artifactId>
             <version>${jackson.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java</artifactId>
+            <version>3.5.0</version>
+        </dependency>
 
         <!-- Test dependencies -->
         <dependency>
@@ -287,6 +261,15 @@
                 <artifactId>maven-release-plugin</artifactId>
                 <version>${version.maven-release-plugin}</version>
             </plugin>
+            <!-- 跳过测试 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.12.4</version>
+                <configuration>
+                    <skipTests>true</skipTests>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.codehaus.plexus</groupId>
                 <artifactId>plexus-component-metadata</artifactId>
@@ -314,52 +297,7 @@
                             <goal>descriptor</goal>
                         </goals>
                     </execution>
-                    <!-- if you want to generate help goal -->
-                    <execution>
-                        <id>help-goal</id>
-                        <goals>
-                            <goal>helpmojo</goal>
-                        </goals>
-                    </execution>
                 </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>animal-sniffer-maven-plugin</artifactId>
-                <version>${version.animal-sniffer-plugin}</version>
-                <configuration>
-                    <signature>
-                        <groupId>org.codehaus.mojo.signature</groupId>
-                        <artifactId>java16-sun</artifactId>
-                        <version>1.0</version>
-                    </signature>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>check-java16-sun</id>
-                        <phase>test</phase>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.jetbrains.kotlin</groupId>
-                <artifactId>kotlin-maven-plugin</artifactId>
-                <version>${kotlin.version}</version>
-                <executions>
-                    <execution>
-                        <id>test-compile</id>
-                        <phase>test-compile</phase>
-                        <goals>
-                            <goal>test-compile</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <jvmTarget>1.8</jvmTarget>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -373,92 +311,12 @@
                             <goal>compile</goal>
                         </goals>
                     </execution>
-                    <execution>
-                        <id>testCompile</id>
-                        <phase>test-compile</phase>
-                        <goals>
-                            <goal>testCompile</goal>
-                        </goals>
-                    </execution>
                 </executions>
             </plugin>
         </plugins>
     </build>
 
-    <profiles>
-        <profile>
-            <id>sonatype-oss-release</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-source-plugin</artifactId>
-                        <version>${version.maven-source-plugin}</version>
-                        <executions>
-                            <execution>
-                                <id>attach-sources</id>
-                                <goals>
-                                    <goal>jar-no-fork</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>${version.maven-javadoc-plugin}</version>
-                        <configuration>
-                            <taglets>
-                                <taglet>
-                                    <tagletClass>org.codehaus.plexus.javadoc.PlexusComponentTaglet</tagletClass>
-                                </taglet>
-                                <taglet>
-                                    <tagletClass>org.codehaus.plexus.javadoc.PlexusConfigurationTaglet</tagletClass>
-                                </taglet>
-                                <taglet>
-                                    <tagletClass>org.codehaus.plexus.javadoc.PlexusRequirementTaglet</tagletClass>
-                                </taglet>
-                            </taglets>
-                            <tagletArtifact>
-                                <groupId>org.codehaus.plexus</groupId>
-                                <artifactId>plexus-javadoc</artifactId>
-                                <version>${version.plexus-javadoc}</version>
-                            </tagletArtifact>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <id>attach-javadocs</id>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-gpg-plugin</artifactId>
-                        <version>${version.maven-gpg-plugin}</version>
-                        <executions>
-                            <execution>
-                                <id>sign-artifacts</id>
-                                <phase>verify</phase>
-                                <goals>
-                                    <goal>sign</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
-
     <distributionManagement>
-        <snapshotRepository>
-            <id>sonatype-nexus-snapshots</id>
-            <name>Sonatype Nexus Snapshots</name>
-            <url>${sonatypeOssDistMgmtSnapshotsUrl}</url>
-        </snapshotRepository>
         <repository>
             <id>sonatype-nexus-staging</id>
             <name>Nexus Release Repository</name>

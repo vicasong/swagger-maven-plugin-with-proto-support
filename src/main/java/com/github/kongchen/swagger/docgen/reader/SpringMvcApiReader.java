@@ -38,6 +38,7 @@ public class SpringMvcApiReader extends AbstractReader implements ClassSwaggerRe
     private final SpringExceptionHandlerReader exceptionHandlerReader;
 
     private String resourcePath;
+    private RequestMethod[] defaultMethods = new RequestMethod[]{RequestMethod.GET};
 
     public SpringMvcApiReader(Swagger swagger, Log log) {
         super(swagger, log);
@@ -113,8 +114,10 @@ public class SpringMvcApiReader extends AbstractReader implements ClassSwaggerRe
                 Map<String, String> regexMap = new HashMap<String, String>();
                 String operationPath = parseOperationPath(path, regexMap);
 
-                //http method
-                for (RequestMethod requestMethod : requestMapping.method()) {
+                // default http methods
+                RequestMethod[] requestMethods = requestMapping.method().length < 1 ?
+                        defaultMethods : requestMapping.method();
+                for (RequestMethod requestMethod : requestMethods) {
                     String httpMethod = requestMethod.toString().toLowerCase();
                     Operation operation = parseMethod(method, requestMethod);
 
@@ -364,6 +367,9 @@ public class SpringMvcApiReader extends AbstractReader implements ClassSwaggerRe
                 if (methodRequestMapping != null) {
                     RequestMethod[] requestMappingRequestMethods = methodRequestMapping.method();
 
+                    if(requestMappingRequestMethods.length < 1) {
+                        requestMappingRequestMethods = defaultMethods;
+                    }
                     // For each method-level @RequestMapping annotation, iterate over HTTP Verb
                     for (RequestMethod requestMappingRequestMethod : requestMappingRequestMethods) {
                         String[] methodRequestMappingValues = methodRequestMapping.value();

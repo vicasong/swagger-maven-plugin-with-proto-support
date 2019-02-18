@@ -1,11 +1,14 @@
 package com.github.kongchen.swagger.docgen.mavenplugin;
 
 
-import org.codehaus.classworlds.ClassRealm;
+import org.codehaus.plexus.classworlds.realm.ClassRealm;
+import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.configurator.AbstractComponentConfigurator;
 import org.codehaus.plexus.component.configurator.ComponentConfigurationException;
+import org.codehaus.plexus.component.configurator.ComponentConfigurator;
 import org.codehaus.plexus.component.configurator.ConfigurationListener;
 import org.codehaus.plexus.component.configurator.converters.composite.ObjectWithFieldsConverter;
+import org.codehaus.plexus.component.configurator.converters.special.ClassRealmConverter;
 import org.codehaus.plexus.component.configurator.expression.ExpressionEvaluationException;
 import org.codehaus.plexus.component.configurator.expression.ExpressionEvaluator;
 import org.codehaus.plexus.configuration.PlexusConfiguration;
@@ -27,18 +30,17 @@ import java.util.List;
  * role-hint="default"
  * @since Aug 1, 2008 3:04:17 PM
  */
+@Component(role = ComponentConfigurator.class, hint = "include-project-dependencies")
 public class IncludeProjectDependenciesComponentConfigurator extends AbstractComponentConfigurator {
 
     @Override
-    public void configureComponent(Object component, PlexusConfiguration configuration,
-                                   ExpressionEvaluator expressionEvaluator, ClassRealm containerRealm,
-                                   ConfigurationListener listener)
-            throws ComponentConfigurationException {
-        addProjectDependenciesToClassRealm(expressionEvaluator, containerRealm);
+    public void configureComponent(Object component, PlexusConfiguration configuration, ExpressionEvaluator evaluator, ClassRealm realm, ConfigurationListener listener) throws ComponentConfigurationException {
+        addProjectDependenciesToClassRealm(evaluator, realm);
 
+        converterLookup.registerConverter(new ClassRealmConverter(realm));
         ObjectWithFieldsConverter converter = new ObjectWithFieldsConverter();
-        converter.processConfiguration(converterLookup, component, containerRealm.getClassLoader(), configuration,
-                expressionEvaluator, listener);
+        converter.processConfiguration(converterLookup, component, realm.getParentClassLoader(), configuration,
+                evaluator, listener);
     }
 
     private void addProjectDependenciesToClassRealm(ExpressionEvaluator expressionEvaluator, ClassRealm containerRealm) throws ComponentConfigurationException {
@@ -53,7 +55,7 @@ public class IncludeProjectDependenciesComponentConfigurator extends AbstractCom
         // Add the project dependencies to the ClassRealm
         final URL[] urls = buildURLs(compileClasspathElements);
         for (URL url : urls) {
-            containerRealm.addConstituent(url);
+            containerRealm.addURL(url);
         }
     }
 
