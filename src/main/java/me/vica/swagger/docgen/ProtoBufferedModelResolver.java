@@ -225,13 +225,15 @@ public class ProtoBufferedModelResolver extends ModelResolver {
                 break;
             case ENUM:
                 // Protobuf枚举实值为int类型的number
-                Set<String> values = propDef.getEnumType().getValues().stream().map(d -> String.format("%s-(%d)", d.getName(), d.getNumber())).collect(Collectors.toSet());
+                Set<String> values = propDef.getEnumType().getValues().stream().map(d -> String.valueOf(d.getNumber())).collect(Collectors.toSet());
                 String allowValueString = StringUtils.join(values, ",");
                 AllowableEnumValues enumValues = AllowableEnumValues.create(allowValueString);
                 property = new IntegerProperty();
                 if (enumValues != null) {
                     final Map<PropertyBuilder.PropertyId, Object> args = enumValues.asPropertyArguments();
                     PropertyBuilder.merge(property, args);
+                    Set<String> valueDesc = propDef.getEnumType().getValues().stream().map(d -> String.format("%d-%s", d.getNumber(), d.getName())).collect(Collectors.toSet());
+                    property.setDescription(StringUtils.join(valueDesc, ", "));
                 }
                 break;
             case GROUP:
