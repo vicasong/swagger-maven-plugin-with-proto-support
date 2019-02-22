@@ -98,10 +98,11 @@
 对于`SpringMVC`项目，需要满足以下要求的接口才会被扫描：
 
 - 使用`@RestController` 标记的控制器
-- 使用`@RequestMapping`定义的接口且有`@ApiOperation`对其进行描述
+- 使用`@RequestMapping`定义的接口且有`@ApiOperation`对其进行描述（`nickName`定义唯一`operationId`）
 - `@RequestMapping`定义了请求方法`method`（本代码已经对其做出修改，不需要明确定义，拥有默认值）
 
-对于非`SpringMVC`项目则需要在类上标注`@Api`注解  
+对于非`SpringMVC`项目则需要在类上标注`@Api`注解   
+> 本代码已修改：`@ApiImplicitParams`可作用于`Controller`类上为其下所有接口添加参数
 
 
 对于`SpringMVC`项目的示例（存在`@RequestMapping`注解描述接口，`@ApiOperation`注解可以只定义一些其他的描述信息）：  

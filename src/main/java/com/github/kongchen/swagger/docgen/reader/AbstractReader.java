@@ -422,10 +422,18 @@ public abstract class AbstractReader {
 
     protected void readImplicitParameters(Method method, Operation operation) {
         ApiImplicitParams implicitParams = AnnotationUtils.findAnnotation(method, ApiImplicitParams.class);
-        if (implicitParams == null) {
+        ApiImplicitParams parentParams = AnnotationUtils.findAnnotation(method.getDeclaringClass(), ApiImplicitParams.class);
+        if (implicitParams == null && parentParams == null) {
             return;
         }
-        for (ApiImplicitParam param : implicitParams.value()) {
+        List<ApiImplicitParam> allParams = new ArrayList<>();
+        if (implicitParams != null) {
+            allParams.addAll(Arrays.asList(implicitParams.value()));
+        }
+        if (parentParams != null) {
+            allParams.addAll(Arrays.asList(parentParams.value()));
+        }
+        for (ApiImplicitParam param : allParams) {
             Class<?> cls;
             try {
                 cls = Class.forName(param.dataType());
